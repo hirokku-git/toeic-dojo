@@ -1,0 +1,833 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ひかるのTOEIC道場</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one centered column, score card on top, tabbed dojo below; navy ink + a gold "target" marker */
+:root{
+  --bg:#F3F5FA; --surface:#FFFFFF; --ink:#141B33; --accent:#1F3FA8; --accent-ink:#FFFFFF;
+  --gold:#F2C230; --muted:#646C8A; --line:#DFE3EE; --soft:#E9EDF8;
+  --good:#1D8A57; --good-soft:#E3F4EB; --bad:#C23D2C; --bad-soft:#FBE8E5;
+  --f-display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1120; --surface:#161B2E; --ink:#E7EAF5; --accent:#7F98F2; --accent-ink:#0D1120;
+  --gold:#F0C948; --muted:#9AA2BE; --line:#283050; --soft:#1E2540;
+  --good:#5BC98F; --good-soft:#15301F; --bad:#F07B69; --bad-soft:#3A1B17; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1120; --surface:#161B2E; --ink:#E7EAF5; --accent:#7F98F2; --accent-ink:#0D1120;
+  --gold:#F0C948; --muted:#9AA2BE; --line:#283050; --soft:#1E2540;
+  --good:#5BC98F; --good-soft:#15301F; --bad:#F07B69; --bad-soft:#3A1B17; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:24px 48px;display:flex;flex-direction:column;gap:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(26px,5vw,38px);line-height:1.15;margin:4px 0 0;text-wrap:balance}
+.countdown{font-size:14px;color:var(--muted)}
+.countdown b{font-family:var(--f-mono);font-size:22px;color:var(--ink);margin:0 4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px}
+.score-row{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big{font-family:var(--f-display);font-size:clamp(40px,9vw,60px);line-height:1;font-variant-numeric:tabular-nums}
+.big.target{color:var(--accent)}
+.arrow{color:var(--muted);font-size:20px}
+.gap{color:var(--muted);font-size:14px}
+.track{position:relative;height:8px;border-radius:4px;background:var(--soft);margin:28px 8px 6px}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+.track .dot{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);background:var(--ink);border:3px solid var(--surface)}
+.track .goal{position:absolute;top:50%;width:24px;height:24px;border-radius:50%;transform:translate(-50%,-50%);background:var(--gold);border:3px solid var(--accent)}
+.track .floor{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--muted);transform:translateX(-1px)}
+.ticks{position:relative;height:18px;margin:0 8px;font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.save-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--muted)}
+input[type=number]{width:96px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-family:var(--f-mono);font-size:16px}
+.btn{border:2px solid var(--accent);background:transparent;color:var(--accent);border-radius:10px;padding:8px 18px;font-weight:700}
+.btn.solid{background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.small{padding:5px 12px;font-size:13px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.tabs button{border:0;background:transparent;padding:10px 4px;border-radius:10px;font-weight:700;color:var(--muted);font-size:15px}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.tabs .badge{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:10px;background:var(--gold);color:#141B33;font-family:var(--f-mono);font-size:11px;line-height:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:620px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat .v{font-family:var(--f-display);font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px;color:var(--muted)}
+.xpbar{height:4px;background:var(--soft);border-radius:2px;margin-top:6px;overflow:hidden}
+.xpbar div{height:100%;background:var(--gold)}
+.menu{border:2px solid var(--accent)}
+.menu-item{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-block:12px}
+.menu-item + .menu-item{border-top:1px dashed var(--line)}
+.menu-item h3{margin:0;font-size:16px}
+.menu-item p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.menu-item .done{color:var(--good);font-weight:700;font-size:13px;white-space:nowrap}
+h2{font-size:17px;margin:0 0 12px}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+.chart .num{fill:var(--ink);font-weight:600}
+.q-head{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.timer{height:6px;background:var(--soft);border-radius:3px;overflow:hidden;margin:10px 0 16px}
+.timer div{height:100%;background:var(--accent);transition:width 1s linear}
+.timer.low div{background:var(--bad)}
+.sentence{font-size:18px;line-height:1.7;margin:0 0 16px;min-width:0;overflow-wrap:anywhere}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:520px){.choices{grid-template-columns:1fr}}
+.choice{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 14px;font-size:16px}
+.choice b{font-family:var(--f-mono);margin-right:8px;color:var(--muted)}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.right{background:var(--good-soft);border-color:var(--good)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.choice:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--soft);font-size:14px}
+.explain .verdict{font-weight:700;margin-bottom:2px}
+.verdict.ok{color:var(--good)} .verdict.ng{color:var(--bad)}
+.tag{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);margin-right:4px;white-space:nowrap}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.flash{text-align:center;padding-block:28px}
+.flash .word{font-family:var(--f-display);font-size:clamp(30px,8vw,44px);line-height:1.2;overflow-wrap:anywhere}
+.flash .meaning{font-size:20px;font-weight:700;margin-top:12px}
+.flash .ex{font-size:14px;color:var(--muted);margin-top:6px}
+.list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.list li{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;min-width:0;overflow-wrap:anywhere}
+.list .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.pips{display:inline-flex;gap:3px;vertical-align:middle}
+.pips i{width:9px;height:9px;border-radius:50%;background:var(--soft);border:1px solid var(--line)}
+.pips i.on{background:var(--good);border-color:var(--good)}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--bg);color:var(--ink);font-family:var(--f-mono);font-size:13px;line-height:1.5}
+.note{font-size:13px;color:var(--muted)}
+.msg{font-size:13px;font-weight:700}
+.msg.ok{color:var(--good)} .msg.ng{color:var(--bad)}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bars .b{display:grid;grid-template-columns:7em 1fr 4em;gap:10px;align-items:center;font-size:13px}
+.bars .t{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.bars .t div{height:100%;background:var(--accent)}
+.bars .n{font-family:var(--f-mono);text-align:right;color:var(--muted)}
+.wordgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.wordgrid div{border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;min-width:0}
+.wordgrid div.ok{border-color:var(--good);background:var(--good-soft)}
+.wordgrid small{display:block;color:var(--muted);font-size:11px}
+.sel{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+#stMin{width:80px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;padding:4px 14px;border-radius:7px;font-size:13px;font-weight:700;color:var(--muted)}
+.seg button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal-h{text-align:center;font-size:11px;color:var(--muted)}
+.cal-c{border:1px solid var(--line);border-radius:8px;min-height:52px;padding:4px 6px;display:flex;flex-direction:column;justify-content:space-between;background:var(--bg)}
+.cal-c.empty{border:0;background:transparent}
+.cal-c.today{outline:2px solid var(--gold);outline-offset:-1px}
+.cal-c .d{font-size:11px;opacity:.8}
+.cal-c .m{font-family:var(--f-mono);font-size:12px;font-weight:600;text-align:right;white-space:nowrap;overflow:hidden}
+@media (max-width:420px){.cal-c{min-height:44px;padding:3px}.cal-c .m{font-size:10px}}
+.msum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.msum div{display:flex;flex-direction:column}
+.msum b{font-family:var(--f-mono);font-size:16px}
+.syncnote{font-size:12px;color:var(--muted);text-align:center}
+@media (prefers-reduced-motion:reduce){.timer div{transition:none}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+// ---------- content ----------
+const EXAM = new Date(2026, 11, 19); // 大学TOEIC 2026/12/19
+const DAILY_GOAL = 10;
+const STUDY_GOAL = 60; // 1日の勉強時間の目標（分）
+const MATERIALS = ['出る1000','極1000','道場','単語','リスニング','公式問題集','音読・シャドーイング','その他'];
+const L = ['A','B','C','D'];
+
+const QUESTIONS = [
+ {id:'q1',lv:1,cat:'品詞',s:'The new software makes it ------- easy to share files with clients.',c:['extreme','extremely','extremity','extremes'],a:1,e:'easy（形容詞）を説明するのは副詞。-ly の extremely（とても）。'},
+ {id:'q2',lv:1,cat:'品詞',s:'Ms. Tanaka gave a clear ------- of the new security policy.',c:['explain','explained','explanation','explanatory'],a:2,e:'a clear ＋ 名詞 の形。explanation（説明）。'},
+ {id:'q3',lv:1,cat:'時制',s:'The IT team ------- the server last night.',c:['update','updated','will update','updating'],a:1,e:'last night があるので過去形 updated。'},
+ {id:'q4',lv:2,cat:'時制',s:'By the time the client arrives, we ------- the presentation slides.',c:['finish','finished','will have finished','have finished'],a:2,e:'By the time ～（未来のある時点）までに「〜し終えている」→ 未来完了 will have finished。'},
+ {id:'q5',lv:2,cat:'前置詞・接続詞',s:'------- the heavy snow, the ski resort stayed open all weekend.',c:['Although','Despite','Because','Even'],a:1,e:'後ろが名詞（the heavy snow）だけ → 前置詞 Despite（〜にもかかわらず）。Although は後ろに主語＋動詞。'},
+ {id:'q6',lv:2,cat:'前置詞・接続詞',s:'------- the meeting ran long, Ken missed his flight to Manila.',c:['Because','Due to','Despite','During'],a:0,e:'後ろに主語＋動詞（the meeting ran）→ 接続詞 Because。Due to は前置詞。'},
+ {id:'q7',lv:2,cat:'関係詞',s:'The developer ------- designed this app will join our team next month.',c:['which','who','whose','whom'],a:1,e:'先行詞が人（developer）で、後ろに動詞 designed が続く → 主格の who。'},
+ {id:'q8',lv:3,cat:'関係詞',s:'We hired an engineer ------- experience includes AI development.',c:['who','which','whose','whom'],a:2,e:'「そのエンジニアの経験」→ 所有格 whose ＋ 名詞（experience）。'},
+ {id:'q9',lv:1,cat:'代名詞',s:'Mr. Lee asked ------- assistant to book a hotel in Seattle.',c:['he','his','him','himself'],a:1,e:'名詞 assistant の前 → 所有格 his（彼の）。'},
+ {id:'q10',lv:2,cat:'代名詞',s:'The sales staff prepared the report by -------.',c:['they','their','them','themselves'],a:3,e:'by oneself で「自分たちだけで」→ themselves。'},
+ {id:'q11',lv:2,cat:'受動態',s:'The new office ------- next spring.',c:['completes','will complete','will be completed','completing'],a:2,e:'オフィスは「完成させられる」側 → 受動態。next spring なので未来 will be completed。'},
+ {id:'q12',lv:1,cat:'受動態',s:'All employees are ------- to attend the safety training.',c:['require','required','requiring','requirement'],a:1,e:'be required to ～ で「〜することが求められる」。超頻出の形。'},
+ {id:'q13',lv:2,cat:'語彙',s:'Please ------- the attached file before the meeting.',c:['review','arrive','depend','respond'],a:0,e:'review the file（ファイルを確認する）。arrive / depend / respond は後ろにすぐ名詞を置けない（respond to など）。'},
+ {id:'q14',lv:2,cat:'語彙',s:'The company plans to ------- its business to Southeast Asia.',c:['expand','attend','reply','belong'],a:0,e:'expand A to B で「AをBに拡大する」。'},
+ {id:'q15',lv:1,cat:'比較',s:'This laptop is ------- than the old model.',c:['light','lighter','lightest','lightly'],a:1,e:'than があったら比較級 -er。'},
+ {id:'q16',lv:2,cat:'比較',s:'Ms. Garcia is the ------- programmer on the team.',c:['more experienced','most experienced','experience','experiencing'],a:1,e:'the ＋ 最上級 ＋ on the team（チームの中で一番）。'},
+ {id:'q17',lv:2,cat:'動名詞・不定詞',s:'We are looking forward to ------- with you.',c:['work','worked','working','works'],a:2,e:'look forward to の to は前置詞 → 後ろは -ing。ひっかけ注意。'},
+ {id:'q18',lv:2,cat:'動名詞・不定詞',s:'The manager decided ------- the launch date.',c:['postpone','to postpone','postponing','postponed'],a:1,e:'decide は to 不定詞をとる（decide to do）。'},
+ {id:'q19',lv:2,cat:'主語と動詞',s:'Each of the new interns ------- a laptop on the first day.',c:['receive','receives','receiving','have received'],a:1,e:'主語は Each（1人ずつ）→ 単数扱いで receives。'},
+ {id:'q20',lv:2,cat:'品詞',s:'The project was completed ------- within budget.',c:['success','successful','successfully','succeed'],a:2,e:'文はもう完成している（was completed）→ 足すのは副詞 successfully。'},
+ {id:'q21',lv:1,cat:'前置詞・接続詞',s:'The conference will be held ------- October 15.',c:['in','on','at','to'],a:1,e:'日付の前は on。月だけなら in October。'},
+ {id:'q22',lv:2,cat:'前置詞・接続詞',s:'Please send your application ------- the end of this month.',c:['by','until','since','among'],a:0,e:'締め切り「〜までに」は by。until は「〜までずっと」。'},
+ {id:'q23',lv:2,cat:'時制',s:'Ms. Sato ------- at our company since 2020.',c:['works','worked','has worked','will work'],a:2,e:'since（〜からずっと）があったら現在完了 has worked。'},
+ {id:'q24',lv:3,cat:'語彙',s:'The Stranger Things fan event was so popular that tickets were ------- within an hour.',c:['sold out','put off','turned down','filled in'],a:0,e:'be sold out で「売り切れる」。put off＝延期、turn down＝断る、fill in＝記入する。'},
+ {id:'q25',lv:3,cat:'前置詞・接続詞',s:'------- you need help with the new system, please contact the IT desk.',c:['Should','Unless','Whether','Despite'],a:0,e:'If you should need → If を消して Should が前に出た形。「もし〜なら」。上級の頻出パターン。'},
+ {id:'q26',lv:2,cat:'語彙',s:'Mr. Brown is ------- for managing the company\'s social media accounts.',c:['responsible','possible','available','capable'],a:0,e:'be responsible for ～ で「〜を担当している」。capable は of をとる。'},
+ {id:'q27',lv:3,cat:'品詞',s:'The marketing team worked ------- to meet the deadline.',c:['tireless','tirelessly','tired','tiring'],a:1,e:'動詞 worked を説明 → 副詞 tirelessly（休まず）。'},
+ {id:'q28',lv:2,cat:'関係詞',s:'This is the theater ------- we watched the new Spider-Man movie.',c:['which','where','what','who'],a:1,e:'場所（theater）＋ 後ろが完全な文（we watched the movie）→ 関係副詞 where。'},
+ {id:'q29',lv:3,cat:'分詞',s:'The documents ------- to the email contain confidential information.',c:['attach','attaching','attached','attaches'],a:2,e:'書類は「添付された」側 → 過去分詞 attached が後ろから名詞を説明。'},
+ {id:'q30',lv:2,cat:'分詞',s:'The results of the survey were very -------.',c:['surprise','surprised','surprising','surprisingly'],a:2,e:'結果が人を「驚かせる」→ surprising。人が驚くなら surprised。'},
+ {id:'q31',lv:2,cat:'前置詞・接続詞',s:'Neither the manager ------- her assistant was available.',c:['or','nor','and','but'],a:1,e:'neither A nor B（AもBも〜ない）のセット。either A or B と区別。'},
+ {id:'q32',lv:3,cat:'語彙',s:'Please make sure to ------- with the company\'s dress code.',c:['comply','follow','obey','observe'],a:0,e:'後ろに with がある → comply with（〜に従う）。follow / obey / observe は with なしで直接名詞をとる。'},
+ {id:'q33',lv:3,cat:'時制',s:'If it ------- tomorrow, the outdoor team event will be canceled.',c:['rains','will rain','rained','raining'],a:0,e:'If（条件）の中は未来でも現在形 rains。'},
+ {id:'q34',lv:3,cat:'前置詞・接続詞',s:'The library will be closed ------- renovations next week.',c:['because','due to','although','so that'],a:1,e:'後ろが名詞 renovations → 前置詞 due to（〜のため）。'},
+ {id:'q35',lv:3,cat:'品詞',s:'The Harry Potter exhibition attracted a ------- number of visitors.',c:['consider','considerable','considerably','consideration'],a:1,e:'a ___ number → 名詞の前は形容詞 considerable（かなりの）。'},
+ {id:'q36',lv:1,cat:'受動態',s:'The meeting room is ------- on the third floor.',c:['located','locate','location','locating'],a:0,e:'be located（〜にある）。場所の説明で超頻出。'},
+ {id:'q37',lv:3,cat:'主語と動詞',s:'The number of applicants for the engineer position ------- increased this year.',c:['have','has','are','were'],a:1,e:'The number of ～（〜の数）は単数扱い → has。A number of ～（たくさんの）は複数。'},
+ {id:'q38',lv:3,cat:'比較',s:'Online sales were twice as high ------- last year.',c:['than','as','so','more'],a:1,e:'twice as ～ as …（…の2倍〜）。as と as がセット。'},
+ {id:'q39',lv:3,cat:'動名詞・不定詞',s:'The new policy allows employees ------- from home twice a week.',c:['work','working','to work','worked'],a:2,e:'allow 人 to do（人が〜するのを許す）。'},
+ {id:'q40',lv:2,cat:'語彙',s:'Our flight to Cebu was ------- because of the typhoon.',c:['canceled','prepared','reserved','located'],a:0,e:'台風のせいで → canceled（欠航になった）。'}
+];
+
+const WORDS = [
+ ['submit','提出する','Please submit the report by Friday.'],
+ ['deadline','締め切り','The deadline is next Monday.'],
+ ['available','空いている・利用できる','Is Mr. Kim available this afternoon?'],
+ ['attend','出席する','I will attend the meeting.'],
+ ['postpone','延期する','The event was postponed.'],
+ ['colleague','同僚','My colleague helped me.'],
+ ['client','顧客','We met the client in Tokyo.'],
+ ['budget','予算','The project is over budget.'],
+ ['expense','経費','Keep your travel expenses low.'],
+ ['invoice','請求書','I sent the invoice today.'],
+ ['purchase','購入する','You can purchase tickets online.'],
+ ['shipment','発送（品）','The shipment arrived late.'],
+ ['inventory','在庫','Check the inventory every week.'],
+ ['require','必要とする','This job requires English.'],
+ ['confirm','確認する','Please confirm your reservation.'],
+ ['reserve','予約する','I reserved a table for four.'],
+ ['refund','返金','You can get a full refund.'],
+ ['complaint','苦情','We received a complaint.'],
+ ['department','部署','She works in the sales department.'],
+ ['supervisor','上司','Ask your supervisor first.'],
+ ['employee','従業員','All employees must sign in.'],
+ ['hire','雇う','We hired two new engineers.'],
+ ['applicant','応募者','There were 50 applicants.'],
+ ['position','職・ポジション','He applied for the position.'],
+ ['résumé','履歴書','Send your résumé by email.'],
+ ['promote','昇進させる・宣伝する','She was promoted to manager.'],
+ ['conference','会議','The conference starts at nine.'],
+ ['agenda','議題','What is on the agenda?'],
+ ['proposal','提案（書）','Your proposal was accepted.'],
+ ['contract','契約','We signed the contract.'],
+ ['negotiate','交渉する','They negotiated a better price.'],
+ ['revenue','収益','Revenue rose by 10%.'],
+ ['profit','利益','The company made a profit.'],
+ ['decline','減少する・断る','Sales declined last year.'],
+ ['launch','発売する・立ち上げる','The app will launch in May.'],
+ ['feature','機能・特徴','This phone has a new feature.'],
+ ['install','設置する・インストールする','Install the update now.'],
+ ['maintenance','保守点検','The site is down for maintenance.'],
+ ['renovation','改装','The lobby is under renovation.'],
+ ['equipment','設備・機器','The equipment is new.'],
+ ['facility','施設','The facility opens at 8.'],
+ ['nearby','近くの','There is a café nearby.'],
+ ['directions','道順','Can you give me directions?'],
+ ['itinerary','旅程表','Here is your itinerary.'],
+ ['accommodation','宿泊施設','Accommodation is included.'],
+ ['departure','出発','Departure is at 10 a.m.'],
+ ['luggage','手荷物','Don\'t leave your luggage.'],
+ ['recently','最近','I recently moved to Fukuoka.'],
+ ['immediately','すぐに','Please reply immediately.'],
+ ['approximately','およそ','It takes approximately an hour.'],
+ ['responsible','担当の・責任がある','Who is responsible for this?'],
+ ['efficient','効率的な','This tool is very efficient.'],
+ ['annual','年1回の','The annual meeting is in May.'],
+ ['regarding','〜に関して','I have a question regarding the plan.'],
+ ['estimate','見積もり','We need a cost estimate.'],
+ ['register','登録する','Register for the workshop online.'],
+ ['upcoming','今度の','Check the upcoming events.'],
+ ['previous','前の','I worked at my previous job for 2 years.'],
+ ['valid','有効な','Your ticket is valid until June.'],
+ ['assist','手伝う','Can I assist you?']
+];
+
+// ---------- state ----------
+const DEFAULT_PROGRESS = {score:350, target:600, floor:500, xp:0, streak:0, lastDay:null, total:0, correct:0, daily:{}, words:{}, qStats:{}, scoreLog:[]};
+let progress = clone(DEFAULT_PROGRESS);
+let reviews = []; // {id,no,sentence,choices,answer,mine,point,cat,source,streak,graduated,createdAt}
+let tab = 'today';
+let view = null; // active session: {kind:'quiz'|'words'|'review', ...}
+let importText = '';
+let importMsg = null;
+let importSrc = '出る1000';
+let db = null, progRef = null, mode = 'local';
+let timerId = null;
+
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function esc(s){return String(s ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function dayKey(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function today(){const k=dayKey(); return progress.daily[k] || {q:0,c:0,w:0}}
+function studyMin(v){ if(!v) return 0; return Math.round((v.auto||0)/60) + (v.log||[]).reduce((a,x)=>a+(x.m||0),0) }
+function fmtMin(m){ return m>=60 ? Math.floor(m/60)+'時間'+(m%60?(m%60)+'分':'') : m+'分' }
+function fmtShort(m){ return m>=60 ? Math.floor(m/60)+'h'+(m%60?String(m%60).padStart(2,'0'):'') : m+'m' }
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+// ---------- persistence ----------
+let saveTimer=null, saving=Promise.resolve(), dirty=false;
+function saveProgress(){
+  dirty=true;
+  if(mode!=='db'){lsSet('dojo.progress',progress); dirty=false; return}
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    const body=clone(progress);
+    saving=saving.then(()=>progRef.set(body)).catch(()=>{}).finally(()=>{dirty=false});
+  },500);
+}
+async function putReview(r){
+  if(mode==='db'){ const {id,...body}=r; await db.doc('review/'+id).set(body); }
+  else { const i=reviews.findIndex(x=>x.id===r.id); if(i>=0) reviews[i]=r; else reviews.push(r); lsSet('dojo.reviews',reviews); }
+}
+async function patchReview(id,patch){
+  const r=reviews.find(x=>x.id===id); if(!r) return;
+  Object.assign(r,patch);
+  if(mode==='db') await db.doc('review/'+id).update(patch).catch(()=>{});
+  else lsSet('dojo.reviews',reviews);
+}
+async function removeReview(id){
+  reviews=reviews.filter(x=>x.id!==id);
+  if(mode==='db') await db.doc('review/'+id).delete().catch(()=>{});
+  else lsSet('dojo.reviews',reviews);
+  render();
+}
+function newId(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+
+// ---------- progress helpers ----------
+function touchDay(){
+  const k=dayKey();
+  if(progress.lastDay!==k){
+    const y=new Date(); y.setDate(y.getDate()-1);
+    progress.streak = progress.lastDay===dayKey(y) ? progress.streak+1 : 1;
+    progress.lastDay=k;
+  }
+  if(!progress.daily[k]) progress.daily[k]={q:0,c:0,w:0};
+  const keys=Object.keys(progress.daily).sort();
+  while(keys.length>800) delete progress.daily[keys.shift()];
+  return progress.daily[k];
+}
+function addXp(n){progress.xp+=n}
+function level(){return Math.floor(progress.xp/100)+1}
+function liveStreak(){
+  if(!progress.lastDay) return 0;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  return (progress.lastDay===dayKey()||progress.lastDay===dayKey(y)) ? progress.streak : 0;
+}
+function accuracy(){return progress.total ? Math.round(progress.correct/progress.total*100) : null}
+
+// ---------- render ----------
+function render(){
+  const app=document.getElementById('app');
+  const days=Math.max(0,Math.ceil((EXAM-new Date(new Date().toDateString()))/86400000));
+  const active=reviews.filter(r=>!r.graduated);
+  app.innerHTML = `
+  <header class="top">
+    <div>
+      <div class="eyebrow">TOEIC L&amp;R ・ 2026年12月19日 大学TOEIC</div>
+      <h1>ひかるのTOEIC道場</h1>
+    </div>
+    <div class="countdown">本番まで あと<b>${days}</b>日</div>
+  </header>
+  ${scoreCard()}
+  <nav class="tabs" role="tablist">
+    ${[['today','今日'],['part5','Part 5'],['words','単語'],['review','復習']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${l}${k==='review'&&active.length?`<span class="badge">${active.length}</span>`:''}</button>`).join('')}
+  </nav>
+  <section>${view ? sessionView() : tabView()}</section>
+  <p class="syncnote">${mode==='db' ? '記録はクラウドに保存中。Max から復習ノートに問題を送れます。' : 'この端末のブラウザに保存中。'}</p>`;
+  app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ if(view) endSession(); tab=b.dataset.tab; render(); });
+  bind();
+}
+
+function scoreCard(){
+  const lo=200, hi=800, pct=v=>Math.min(100,Math.max(0,(v-lo)/(hi-lo)*100));
+  const s=progress.score, t=progress.target, f=progress.floor;
+  return `<div class="card">
+    <div class="score-row">
+      <span class="big">${s}</span><span class="arrow">→</span><span class="big target">${t}</span>
+      <span class="gap">${s>=t?'目標クリア！次は700':'あと '+(t-s)+' 点'}</span>
+    </div>
+    <div class="track" aria-hidden="true">
+      <div class="fill" style="width:${pct(s)}%"></div>
+      <div class="floor" style="left:${pct(f)}%"></div>
+      <div class="goal" style="left:${pct(t)}%"></div>
+      <div class="dot" style="left:${pct(s)}%"></div>
+    </div>
+    <div class="ticks">${[200,300,400,500,600,700,800].map(v=>`<span style="left:${pct(v)}%">${v}</span>`).join('')}</div>
+    <div class="legend"><span><i style="background:var(--ink)"></i>いまのスコア</span><span><i style="background:var(--muted);border-radius:1px;width:3px"></i>最低ライン ${f}</span><span><i style="background:var(--gold)"></i>チャレンジ目標 ${t}</span></div>
+    <div class="save-row"><label for="scoreIn">新しいスコアが出たら更新：</label><input id="scoreIn" type="number" min="10" max="990" step="5" value="${s}"><button class="btn" id="scoreSave">保存</button></div>
+  </div>`;
+}
+
+function tabView(){
+  if(tab==='today') return todayView();
+  if(tab==='part5') return part5View();
+  if(tab==='words') return wordsView();
+  return reviewView();
+}
+
+function todayView(){
+  const t=today(), acc=accuracy(), lv=level(), into=progress.xp%100;
+  const left=Math.max(0,DAILY_GOAL-t.q);
+  const active=reviews.filter(r=>!r.graduated).length;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="stats">
+    <div class="stat"><div class="v">${liveStreak()}日</div><div class="l">連続日数</div></div>
+    <div class="stat"><div class="v">Lv${lv}</div><div class="l">${into} / 100 XP</div><div class="xpbar"><div style="width:${into}%"></div></div></div>
+    <div class="stat"><div class="v">${fmtMin(studyMin(progress.daily[dayKey()]))}</div><div class="l">今日の勉強時間</div></div>
+    <div class="stat"><div class="v">${acc===null?'–':acc+'%'}</div><div class="l">これまでの正答率</div></div>
+  </div>
+  <div class="card menu">
+    <div class="eyebrow">今日のメニュー</div>
+    <div class="menu-item"><div><h3>Part 5 を5問（今日の目標 ${DAILY_GOAL}問、${left?'あと '+left+' 問':'達成！'}）</h3><p>1問30秒以内で解く練習。本番は Part 5 を10分で終わらせたい。</p></div><button class="btn solid" data-start="quiz">はじめる</button></div>
+    <div class="menu-item"><div><h3>新しい単語を10個</h3><p>声に出して3周。書かなくていい。</p></div>${t.w>=10?'<span class="done">今日はOK</span>':''}<button class="btn solid" data-start="words">はじめる</button></div>
+    <div class="menu-item"><div><h3>復習ノート（${active}問）</h3><p>2回連続で正解したら卒業。出る1000の間違いもここに入る。</p></div><button class="btn solid" data-start="review" ${active?'':'disabled'}>はじめる</button></div>
+  </div>
+  ${studyCard()}
+  </div>`;
+}
+
+function weekChart(){
+  const days=[]; for(let i=6;i>=0;i--){const d=new Date(); d.setDate(d.getDate()-i); days.push(d)}
+  const data=days.map(d=>{const v=progress.daily[dayKey(d)]; return {d, m:studyMin(v), auto:Math.round(((v&&v.auto)||0)/60)}});
+  const max=Math.max(STUDY_GOAL*1.25, ...data.map(x=>x.m));
+  const W=560,H=190,top=20,bot=34,left=8,right=8, ch=H-top-bot, bw=(W-left-right)/7;
+  const y=v=>top+ch-(v/max)*ch;
+  const wd='日月火水木金土';
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="直近7日の勉強時間">`;
+  s+=`<line x1="${left}" x2="${W-right}" y1="${y(STUDY_GOAL)}" y2="${y(STUDY_GOAL)}" stroke="var(--gold)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  s+=`<text x="${W-right}" y="${y(STUDY_GOAL)-6}" text-anchor="end">目標 ${fmtMin(STUDY_GOAL)}</text>`;
+  s+=`<line x1="${left}" x2="${W-right}" y1="${top+ch}" y2="${top+ch}" stroke="var(--line)"/>`;
+  data.forEach((x,i)=>{
+    const cx=left+bw*i+bw/2, w=Math.min(36,bw*.55);
+    if(x.m){
+      s+=`<rect x="${cx-w/2}" y="${y(x.m)}" width="${w}" height="${top+ch-y(x.m)}" rx="4" fill="var(--accent)"/>`;
+      s+=`<text class="num" x="${cx}" y="${y(x.m)-5}" text-anchor="middle">${fmtShort(x.m)}</text>`;
+    }
+    const isToday=i===6;
+    s+=`<text x="${cx}" y="${H-14}" text-anchor="middle" ${isToday?'class="num"':''}>${x.d.getMonth()+1}/${x.d.getDate()}</text>`;
+    s+=`<text x="${cx}" y="${H-1}" text-anchor="middle">${isToday?'今日':wd[x.d.getDay()]}</text>`;
+  });
+  const total=data.reduce((a,x)=>a+x.m,0);
+  return s+'</svg>'+`<p class="note" style="margin:6px 0 0">7日間の合計 ${fmtMin(total)}</p>`;
+}
+
+let chartMode = lsGet('dojo.cmode') || 'week';
+let monthOff = 0;
+function monthView(){
+  const base=new Date(); base.setDate(1); base.setMonth(base.getMonth()+monthOff);
+  const y=base.getFullYear(), mo=base.getMonth(), nd=new Date(y,mo+1,0).getDate(), lead=new Date(y,mo,1).getDay();
+  const tk=dayKey();
+  let total=0, studied=0; const by={};
+  const cells=[];
+  for(let i=0;i<lead;i++) cells.push('<div class="cal-c empty"></div>');
+  for(let d=1;d<=nd;d++){
+    const k=dayKey(new Date(y,mo,d)), v=progress.daily[k], m=studyMin(v);
+    if(m){total+=m; studied++}
+    if(v){(v.log||[]).forEach(x=>by[x.what]=(by[x.what]||0)+x.m); const a=Math.round((v.auto||0)/60); if(a) by['道場']=(by['道場']||0)+a}
+    const pct=m?Math.round(25+Math.min(1,m/STUDY_GOAL)*75):0;
+    const style=m?`background:color-mix(in srgb, var(--accent) ${pct}%, var(--surface));${pct>55?'color:var(--accent-ink)':''}`:'';
+    cells.push(`<div class="cal-c ${k===tk?'today':''}" style="${style}"><span class="d">${d}</span><span class="m">${m?fmtShort(m):''}</span></div>`);
+  }
+  const isNow=monthOff===0;
+  const days=isNow?new Date().getDate():nd;
+  const mats=Object.entries(by).sort((a,b)=>b[1]-a[1]); const mmax=mats.length?mats[0][1]:1;
+  return `<div class="spread" style="margin-bottom:8px"><button class="btn small" data-mon="-1" aria-label="前の月">‹ 前の月</button><b>${y}年${mo+1}月</b><button class="btn small" data-mon="1" ${isNow?'disabled':''} aria-label="次の月">次の月 ›</button></div>
+  <div class="cal">${'日月火水木金土'.split('').map(w=>`<div class="cal-h">${w}</div>`).join('')}${cells.join('')}</div>
+  <div class="msum"><div><span class="note">合計</span><b>${fmtMin(total)}</b></div><div><span class="note">勉強した日</span><b>${studied}日</b></div><div><span class="note">1日平均</span><b>${fmtMin(Math.round(total/Math.max(1,days)))}</b></div></div>
+  ${mats.length?`<div class="bars" style="margin-top:12px">${mats.map(([k,m])=>`<div class="b"><span>${esc(k)}</span><div class="t"><div style="width:${m/mmax*100}%"></div></div><span class="n">${fmtShort(m)}</span></div>`).join('')}</div>`:''}`;
+}
+let sw = lsGet('dojo.sw'); // {start:number}
+let swTick = null;
+let lastWhat = lsGet('dojo.what') || '出る1000';
+let copyMsg = '';
+function studyCard(){
+  const v=progress.daily[dayKey()]||{};
+  const autoM=Math.round((v.auto||0)/60);
+  const log=v.log||[];
+  const running=!!(sw&&sw.start);
+  return `<div class="card chart">
+    <div class="spread"><h2 style="margin:0">勉強時間</h2><div class="seg" role="tablist"><button data-cmode="week" aria-selected="${chartMode==='week'}">7日間</button><button data-cmode="month" aria-selected="${chartMode==='month'}">月</button></div></div>
+    <div style="margin-top:10px">${chartMode==='week'?weekChart():monthView()}</div>
+    <div style="border-top:1px dashed var(--line);margin-top:14px;padding-top:14px;display:flex;flex-direction:column;gap:12px">
+      <div class="row">
+        <label for="stWhat" class="note">教材</label>
+        <select id="stWhat" class="sel">${MATERIALS.map(m=>`<option ${m===lastWhat?'selected':''}>${m}</option>`).join('')}</select>
+        <input id="stMin" type="number" min="1" max="600" step="5" placeholder="30" aria-label="分">
+        <span class="note">分</span>
+        <button class="btn solid" id="stAdd">記録</button>
+      </div>
+      <div class="row">
+        <button class="btn ${running?'solid':''}" id="swBtn">${running?'ストップして記録':'タイマー開始'}</button>
+        <span id="swLab" class="mono">${running?swText():''}</span>
+        ${running?'<button class="btn small" id="swCancel">取り消し</button>':''}
+      </div>
+      ${(log.length||autoM)?`<ul class="list">
+        ${autoM?`<li class="spread"><span>道場（アプリで自動記録）</span><span class="mono">${fmtMin(autoM)}</span></li>`:''}
+        ${log.map(x=>`<li class="spread"><span>${esc(x.what)}</span><span class="row"><span class="mono">${fmtMin(x.m)}</span><button class="btn small" data-dellog="${esc(x.id)}">消す</button></span></li>`).join('')}
+      </ul>`:'<p class="note" style="margin:0">今日はまだ記録なし。出る1000をやったら時間を入れてね。道場で解いた時間は自動で入ります。</p>'}
+      <div class="row"><button class="btn small" id="spCopy">スタプラ用にコピー</button>${copyMsg?`<span class="msg ok">${esc(copyMsg)}</span>`:''}</div>
+      <textarea id="spText" readonly hidden></textarea>
+    </div>
+  </div>`;
+}
+function swText(){ const s=Math.floor((Date.now()-sw.start)/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0') }
+function swRun(){ clearInterval(swTick); if(!(sw&&sw.start)) return; swTick=setInterval(()=>{const el=document.getElementById('swLab'); if(el) el.textContent=swText()},1000) }
+function addLog(what,m){
+  if(!(m>0)) return;
+  const d=touchDay(); d.log=(d.log||[]).concat({id:newId(),what,m:Math.min(600,Math.round(m))});
+  addXp(Math.min(30,Math.round(m/2)));
+  saveProgress();
+}
+function logSessionTime(){
+  if(!view || view.logged || !view.t0) return;
+  view.logged=true;
+  const secs=Math.min(3600,(Date.now()-view.t0)/1000);
+  const d=touchDay(); d.auto=(d.auto||0)+secs; saveProgress();
+}
+function spSummary(){
+  const now=new Date(), v=progress.daily[dayKey()]||{};
+  const by={}; (v.log||[]).forEach(x=>by[x.what]=(by[x.what]||0)+x.m);
+  const a=Math.round((v.auto||0)/60); if(a) by['道場']=(by['道場']||0)+a;
+  const lines=Object.entries(by).map(([k,m])=>`${k} ${fmtMin(m)}`);
+  return `${now.getMonth()+1}/${now.getDate()} の勉強\n`+(lines.length?lines.join('\n'):'記録なし')+`\n合計 ${fmtMin(studyMin(v))}`;
+}
+
+function catStats(){
+  const m={};
+  QUESTIONS.forEach(q=>{const st=progress.qStats[q.id]; if(!st) return; m[q.cat]=m[q.cat]||{n:0,c:0}; m[q.cat].n+=st.seen; m[q.cat].c+=st.correct});
+  return Object.entries(m).map(([k,v])=>({cat:k,n:v.n,acc:Math.round(v.c/v.n*100)})).sort((a,b)=>a.acc-b.acc);
+}
+function part5View(){
+  const cs=catStats();
+  const seen=Object.keys(progress.qStats).length;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="card"><div class="spread"><div><h2 style="margin:0">Part 5 を5問</h2><p class="note" style="margin:4px 0 0">1問30秒。正答率が高いと難しめ、低いとやさしめの問題が出ます。間違えた問題は自動で復習ノートへ。</p></div><button class="btn solid" data-start="quiz">はじめる</button></div>
+  <p class="note" style="margin:12px 0 0">問題バンク ${QUESTIONS.length}問中 ${seen}問 といた</p></div>
+  <div class="card"><h2>分野別の正答率（低い順）</h2>${cs.length?`<div class="bars">${cs.map(x=>`<div class="b"><span>${esc(x.cat)}</span><div class="t"><div style="width:${x.acc}%"></div></div><span class="n">${x.acc}%</span></div>`).join('')}</div>`:'<p class="note">まだデータがありません。5問といてみよう。</p>'}</div>
+  </div>`;
+}
+
+function wordsView(){
+  const ok=WORDS.filter(w=>progress.words[w[0]]==='ok').length;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="card"><div class="spread"><div><h2 style="margin:0">新しい単語を10個</h2><p class="note" style="margin:4px 0 0">英語だけ見て、意味を声に出して言ってからめくる。3周で1セット。</p></div><button class="btn solid" data-start="words">はじめる</button></div>
+  <p class="note" style="margin:12px 0 0">覚えた単語 ${ok} / ${WORDS.length}</p></div>
+  <div class="card"><h2>単語リスト</h2><div class="wordgrid">${WORDS.map(w=>`<div class="${progress.words[w[0]]==='ok'?'ok':''}">${esc(w[0])}<small>${progress.words[w[0]]?esc(w[1]):'？？？'}</small></div>`).join('')}</div></div>
+  </div>`;
+}
+
+function reviewView(){
+  const active=reviews.filter(r=>!r.graduated).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));
+  const grad=reviews.filter(r=>r.graduated);
+  const weak={}; reviews.forEach(r=>{const c=r.cat||'その他'; weak[c]=(weak[c]||0)+1});
+  const weakList=Object.entries(weak).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const wmax=weakList.length?weakList[0][1]:1;
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="card"><div class="spread"><div><h2 style="margin:0">復習ノート</h2><p class="note" style="margin:4px 0 0">のこり ${active.length}問 ・ 卒業 ${grad.length}問。2回連続で正解したら卒業。</p></div><button class="btn solid" data-start="review" ${active.length?'':'disabled'}>復習する</button></div></div>
+  ${weakList.length?`<div class="card"><h2>間違えが多い分野</h2><div class="bars">${weakList.map(([c,n])=>`<div class="b"><span>${esc(c)}</span><div class="t"><div style="width:${n/wmax*100}%;background:var(--bad)"></div></div><span class="n">${n}問</span></div>`).join('')}</div></div>`:''}
+  <div class="card"><h2>のこっている問題</h2>${active.length?`<ul class="list">${active.map(r=>`<li><div class="spread"><span>${r.source?`<span class="tag">${esc(r.source)}${r.no?' '+esc(r.no):''}</span>`:''}${r.cat?`<span class="tag">${esc(r.cat)}</span>`:''}</span><span class="pips" title="連続正解">${[0,1].map(i=>`<i class="${(r.streak||0)>i?'on':''}"></i>`).join('')}</span></div><div style="margin-top:4px">${esc(r.sentence)}</div><div class="meta">正解 (${L[r.answer]}) ${esc(r.choices[r.answer])}${r.point?' ・ '+esc(r.point):''}</div></li>`).join('')}</ul>`:'<p class="note">いまは空っぽ。Part 5 で間違えるか、下の取りこみで追加できます。</p>'}</div>
+  <div class="card"><h2>間違いリストを取りこむ</h2>
+    <p class="note" style="margin:0 0 8px">Max（出る1000・極1000）に「間違えた問題をこの形で一覧にして」と頼んで、出てきたものを貼りつけ。1問1行、区切りは ／ 。</p>
+    <p class="note" style="margin:0 0 8px;font-family:var(--f-mono);font-size:12px">問題番号／英文（空所は -------）／選択肢4つ／正解／私が選んだ答え／ポイント</p>
+    <textarea id="importBox" placeholder="例）101／The report ------- by Friday.／(A) submit (B) submits (C) will be submitted (D) submitting／(C)／(B)／受動態：レポートは「出される」側">${esc(importText)}</textarea>
+    <div class="row" style="margin-top:10px"><label for="importSrc" class="note">教材</label><select id="importSrc" class="sel">${['出る1000','極1000','その他'].map(m=>`<option ${m===importSrc?'selected':''}>${m}</option>`).join('')}</select><button class="btn solid" id="importBtn">取りこむ</button>${importMsg?`<span class="msg ${importMsg.ok?'ok':'ng'}">${esc(importMsg.text)}</span>`:''}</div>
+  </div>
+  ${grad.length?`<div class="card"><h2>卒業した問題</h2><ul class="list">${grad.map(r=>`<li><div>${esc(r.sentence)}</div><div class="meta">(${L[r.answer]}) ${esc(r.choices[r.answer])}${r.cat?' ・ '+esc(r.cat):''} <button class="btn small" data-del="${esc(r.id)}" style="margin-left:6px">消す</button></div></li>`).join('')}</ul></div>`:''}
+  </div>`;
+}
+
+// ---------- sessions ----------
+function pickQuestions(n){
+  const acc=accuracy();
+  const pref = acc===null ? [1,2] : acc>=75 ? [2,3] : acc>=50 ? [1,2,3] : [1,2];
+  const unseen=QUESTIONS.filter(q=>!progress.qStats[q.id]);
+  const weakSeen=QUESTIONS.filter(q=>{const s=progress.qStats[q.id]; return s && s.correct<s.seen});
+  let pool=shuffle(unseen.filter(q=>pref.includes(q.lv)));
+  pool=pool.concat(shuffle(unseen.filter(q=>!pref.includes(q.lv))), shuffle(weakSeen), shuffle(QUESTIONS));
+  const out=[]; const ids=new Set();
+  for(const q of pool){ if(!ids.has(q.id)){ids.add(q.id); out.push(q)} if(out.length===n) break; }
+  return out;
+}
+function startSession(kind){
+  if(kind==='quiz') view={kind, items:pickQuestions(5), i:0, picked:null, right:0, left:30};
+  if(kind==='words'){
+    const fresh=WORDS.filter(w=>!progress.words[w[0]]), again=WORDS.filter(w=>progress.words[w[0]]==='again');
+    const set=shuffle(again).concat(shuffle(fresh)).slice(0,10);
+    if(set.length<10) set.push(...shuffle(WORDS.filter(w=>!set.includes(w))).slice(0,10-set.length));
+    view={kind, items:set, i:0, round:1, flipped:false, marks:{}};
+  }
+  if(kind==='review'){
+    const items=shuffle(reviews.filter(r=>!r.graduated)).slice(0,10);
+    if(!items.length) return;
+    view={kind, items:items.map(r=>r.id), i:0, picked:null, right:0, grads:0};
+  }
+  view.t0=Date.now();
+  render(); startTimer();
+}
+function endSession(){logSessionTime(); view=null; stopTimer()}
+function stopTimer(){clearInterval(timerId); timerId=null}
+function startTimer(){
+  stopTimer();
+  if(!view || view.kind!=='quiz' || view.picked!==null) return;
+  timerId=setInterval(()=>{
+    if(!view || view.kind!=='quiz'){stopTimer();return}
+    view.left--;
+    const bar=document.getElementById('timerBar'), lab=document.getElementById('timerLab');
+    if(bar){bar.style.width=(view.left/30*100)+'%'; bar.parentElement.classList.toggle('low',view.left<=10)}
+    if(lab) lab.textContent=Math.max(0,view.left)+'秒';
+    if(view.left<=0){stopTimer(); answerQuiz(-1)}
+  },1000);
+}
+
+function sessionView(){
+  if(view.kind==='quiz') return quizView();
+  if(view.kind==='words') return flashView();
+  return reviewSessionView();
+}
+function choicesHtml(choices, answer, picked){
+  return `<div class="choices">${choices.map((c,k)=>{
+    let cls=''; if(picked!==null){ if(k===answer) cls='right'; else if(k===picked) cls='wrong'; }
+    return `<button class="choice ${cls}" data-pick="${k}" ${picked!==null?'disabled':''}><b>(${L[k]})</b>${esc(c)}</button>`}).join('')}</div>`;
+}
+function quizView(){
+  if(view.i>=view.items.length) return `<div class="card flash"><div class="eyebrow">おつかれ！</div><div class="word">${view.right} / ${view.items.length}</div><p class="ex">+${view.right*10+(view.items.length-view.right)*3} XP${view.right<view.items.length?' ・ 間違えた問題は復習ノートに入れたよ':''}</p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn solid" data-start="quiz">もう5問</button><button class="btn" data-close>もどる</button></div></div>`;
+  const q=view.items[view.i], p=view.picked;
+  return `<div class="card">
+    <div class="q-head"><span>Part 5 ・ ${view.i+1} / ${view.items.length} <span class="tag">${esc(q.cat)}</span></span><span id="timerLab">${p===null?view.left+'秒':''}</span></div>
+    <div class="timer ${view.left<=10?'low':''}"><div id="timerBar" style="width:${p===null?view.left/30*100:0}%"></div></div>
+    <p class="sentence">${esc(q.s)}</p>
+    ${choicesHtml(q.c,q.a,p)}
+    ${p!==null?`<div class="explain"><div class="verdict ${p===q.a?'ok':'ng'}">${p===q.a?'正解！':p===-1?'時間切れ。正解は ('+L[q.a]+')':'ざんねん。正解は ('+L[q.a]+')'}</div>${esc(q.e)}</div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn solid" data-next>${view.i+1<view.items.length?'次へ':'結果を見る'}</button></div>`:''}
+  </div>`;
+}
+function answerQuiz(k){
+  if(!view || view.picked!==null) return;
+  stopTimer();
+  const q=view.items[view.i]; view.picked=k;
+  const ok=k===q.a; if(ok) view.right++;
+  const d=touchDay(); d.q++; if(ok) d.c++;
+  progress.total++; if(ok) progress.correct++;
+  const st=progress.qStats[q.id]||{seen:0,correct:0}; st.seen++; if(ok) st.correct++; progress.qStats[q.id]=st;
+  addXp(ok?10:3);
+  saveProgress();
+  if(!ok && !reviews.some(r=>r.qid===q.id && !r.graduated)){
+    putReview({id:newId(), qid:q.id, no:'', sentence:q.s, choices:q.c, answer:q.a, mine:k<0?null:k, point:q.cat+'：'+q.e, cat:q.cat, source:'道場', streak:0, graduated:false, createdAt:new Date().toISOString()}).catch(()=>{});
+  }
+  render();
+}
+
+function flashView(){
+  if(view.round>3) return `<div class="card flash"><div class="eyebrow">3周クリア！</div><div class="word">10 words</div><p class="ex">+20 XP ・ 「もう一回」にした単語は次回また出ます。</p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn" data-close>もどる</button></div></div>`;
+  const w=view.items[view.i];
+  return `<div class="card flash">
+    <div class="q-head"><span>${view.round}周目 ・ ${view.i+1} / ${view.items.length}</span><span class="row"><a class="note" href="https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(w[0].normalize('NFD').replace(/[\u0300-\u036f]/g,''))}" target="_blank" rel="noopener">辞書で発音</a><button class="btn small" data-say>発音を聞く</button></span></div>
+    <p class="note" id="voiceNote" style="margin:4px 0 0;text-align:right">${voiceMsg}</p>
+    <div class="word" style="margin-top:20px">${esc(w[0])}</div>
+    ${view.flipped?`<div class="meaning">${esc(w[1])}</div><div class="ex">${esc(w[2])}</div>
+      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn" data-mark="again">もう一回</button><button class="btn solid" data-mark="ok">言えた</button></div>`
+    :`<p class="ex">声に出して意味を言ってからめくろう</p><div class="row" style="justify-content:center;margin-top:18px"><button class="btn solid" data-flip>めくる</button></div>`}
+  </div>`;
+}
+function markWord(m){
+  const w=view.items[view.i];
+  view.marks[w[0]]=m; // 3周目の判定が最終
+  view.i++; view.flipped=false;
+  if(view.i>=view.items.length){
+    view.i=0; view.round++;
+    if(view.round>3){
+      logSessionTime();
+      const d=touchDay(); d.w+=view.items.length;
+      view.items.forEach(x=>{progress.words[x[0]]=view.marks[x[0]]||'ok'});
+      addXp(20); saveProgress();
+    } else view.items=shuffle(view.items);
+  }
+  render();
+}
+
+function reviewSessionView(){
+  if(view.i>=view.items.length) return `<div class="card flash"><div class="eyebrow">復習おわり</div><div class="word">${view.right} / ${view.items.length}</div><p class="ex">卒業 ${view.grads}問 ・ +${view.right*15} XP</p><div class="row" style="justify-content:center;margin-top:14px"><button class="btn" data-close>もどる</button></div></div>`;
+  const r=reviews.find(x=>x.id===view.items[view.i]);
+  if(!r){view.i++; return reviewSessionView()}
+  const p=view.picked;
+  return `<div class="card">
+    <div class="q-head"><span>復習 ・ ${view.i+1} / ${view.items.length} ${r.source?`<span class="tag">${esc(r.source)}${r.no?' '+esc(r.no):''}</span>`:''}</span><span class="pips">${[0,1].map(i=>`<i class="${(r.streak||0)>i?'on':''}"></i>`).join('')}</span></div>
+    <p class="sentence" style="margin-top:12px">${esc(r.sentence)}</p>
+    ${choicesHtml(r.choices,r.answer,p)}
+    ${p!==null?`<div class="explain"><div class="verdict ${p===r.answer?'ok':'ng'}">${p===r.answer?(r.streak>=2?'正解！卒業です':'正解！あと1回で卒業'):'ざんねん。正解は ('+L[r.answer]+')'}</div>${r.mine!==null&&r.mine!==undefined?`前に選んだのは (${L[r.mine]})。`:''}${esc(r.point||'')}</div><div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn solid" data-next>${view.i+1<view.items.length?'次へ':'結果を見る'}</button></div>`:''}
+  </div>`;
+}
+async function answerReview(k){
+  if(view.picked!==null) return;
+  const r=reviews.find(x=>x.id===view.items[view.i]); if(!r) return;
+  view.picked=k;
+  const ok=k===r.answer;
+  const streak=ok?(r.streak||0)+1:0, graduated=streak>=2;
+  if(ok){view.right++; addXp(15)}
+  if(graduated) view.grads++;
+  touchDay(); saveProgress();
+  render();
+  await patchReview(r.id,{streak, graduated, lastReviewed:new Date().toISOString()});
+  render();
+}
+
+// ---------- import ----------
+function parseChoices(str){
+  const m=[...str.matchAll(/\(?\s*([A-DＡ-Ｄ])\s*[\).）．.]\s*([^()（）]*?)(?=\s*\(?\s*[A-DＡ-Ｄ]\s*[\).）．.]|$)/g)];
+  if(m.length>=4) return m.slice(0,4).map(x=>x[2].trim().replace(/[,、]$/,''));
+  const parts=str.split(/[,、]|\s{2,}/).map(s=>s.trim()).filter(Boolean);
+  return parts.length>=4 ? parts.slice(0,4) : null;
+}
+function parseAnswer(str, choices){
+  const s=String(str).replace(/[Ａ-Ｄ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).trim();
+  const m=s.match(/^\(?\s*([A-D])\b/i) || s.match(/\(([A-D])\)/i);
+  if(m) return L.indexOf(m[1].toUpperCase());
+  const i=choices.findIndex(c=>c && s.toLowerCase().includes(c.toLowerCase()));
+  return i;
+}
+function parseRecord(parts){
+  parts=parts.map(p=>p.replace(/^\s*(問題番号|英文|選択肢|正解|私が選んだ答え|ポイント)\s*[:：]\s*/,'').trim());
+  if(parts.length<6) return null;
+  const [no,sentence,choiceStr,ansStr,mineStr,...rest]=parts;
+  const choices=parseChoices(choiceStr); if(!choices) return null;
+  const answer=parseAnswer(ansStr,choices); if(answer<0) return null;
+  const mine=parseAnswer(mineStr,choices);
+  const point=rest.join('／');
+  const cat=(point.split(/[：:（(、,]/)[0]||'').trim().slice(0,12) || 'その他';
+  return {no:no.replace(/^No\.?\s*/i,''), sentence, choices, answer, mine:mine<0?null:mine, point, cat};
+}
+function parseImport(text){
+  const out=[]; let bad=0;
+  const lines=text.split(/\r?\n/);
+  let buf=[];
+  const flush=()=>{ if(!buf.length) return; const joined=buf.join('／'); const parts=joined.split(/\s*／\s*|\s+\/\s+/).filter(s=>s.trim()!==''); const r=parseRecord(parts); if(r) out.push(r); else bad++; buf=[] };
+  for(const raw of lines){
+    const line=raw.trim().replace(/^[-*・]\s*/,'');
+    if(!line){flush(); continue}
+    const n=line.split(/\s*／\s*|\s+\/\s+/).filter(Boolean).length;
+    if(n>=6){flush(); buf=[line]; flush(); continue}
+    buf.push(line);
+    const total=buf.join('／').split(/\s*／\s*|\s+\/\s+/).filter(Boolean).length;
+    if(total>=6 && !/^(問題番号|英文|選択肢|正解|私が選んだ答え)/.test(line)) flush();
+  }
+  flush();
+  return {out,bad};
+}
+async function doImport(){
+  const {out,bad}=parseImport(importText);
+  if(!out.length){importMsg={ok:false,text:'読み取れませんでした。1問1行、／ 区切りで6項目あるか確認してね。'}; render(); return}
+  const now=Date.now();
+  for(let i=0;i<out.length;i++){
+    const r=out[i];
+    if(reviews.some(x=>!x.graduated && x.sentence===r.sentence)) continue;
+    await putReview({id:newId(), ...r, source:importSrc, streak:0, graduated:false, createdAt:new Date(now+i).toISOString()}).catch(()=>{});
+  }
+  importText=''; importMsg={ok:true,text:`${out.length}問を復習ノートに入れました${bad?`（${bad}件は読み取れず）`:''}`};
+  render();
+}
+
+// ---------- pronunciation ----------
+let voiceMsg='';
+function englishVoice(){
+  let vs=[]; try{vs=speechSynthesis.getVoices()||[]}catch(e){}
+  const en=vs.filter(v=>/^en[-_]/i.test(v.lang)||/^en$/i.test(v.lang));
+  if(!en.length) return null;
+  const score=v=>{let s=0; const l=v.lang.replace('_','-').toLowerCase(), n=v.name.toLowerCase();
+    if(l==='en-us') s+=50; else if(l==='en-gb') s+=30; else s+=10;
+    if(/natural|neural|online/.test(n)) s+=25;
+    if(/google|samantha|aria|jenny|guy|ava|allison|alex/.test(n)) s+=15;
+    if(/novelty|bells|bad news|whisper|zarvox|trinoids|albert|bubbles|jester|organ|superstar|boing|cellos/.test(n)) s-=100;
+    return s};
+  return en.sort((a,b)=>score(b)-score(a))[0];
+}
+function speak(word){
+  try{
+    const say=()=>{
+      const v=englishVoice();
+      if(!v){voiceMsg='この端末に英語の声が入ってないみたい。「辞書で発音」で聞いてね'; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg; return}
+      const u=new SpeechSynthesisUtterance(word.normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+      u.voice=v; u.lang=v.lang; u.rate=.9;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+      voiceMsg='声：'+v.name; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg;
+    };
+    if(speechSynthesis.getVoices().length) say();
+    else { let done=false; const go=()=>{if(!done){done=true; say()}}; speechSynthesis.addEventListener('voiceschanged',go,{once:true}); setTimeout(go,700) }
+  }catch(e){}
+}
+
+// ---------- events ----------
+function bind(){
+  const $=s=>document.querySelector(s);
+  $('#scoreSave')?.addEventListener('click',()=>{
+    const v=parseInt($('#scoreIn').value,10);
+    if(!(v>=10&&v<=990)) return;
+    progress.score=v; progress.scoreLog=(progress.scoreLog||[]).concat({d:dayKey(),s:v}).slice(-20);
+    saveProgress(); render();
+  });
+  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>startSession(b.dataset.start));
+  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{endSession(); render()});
+  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const k=+b.dataset.pick; view.kind==='quiz'?answerQuiz(k):answerReview(k)});
+  document.querySelectorAll('[data-next]').forEach(b=>b.onclick=()=>{view.i++; view.picked=null; view.left=30; if(view.i>=view.items.length) logSessionTime(); render(); startTimer()});
+  $('[data-flip]')?.addEventListener('click',()=>{view.flipped=true; render()});
+  document.querySelectorAll('[data-mark]').forEach(b=>b.onclick=()=>markWord(b.dataset.mark));
+  $('[data-say]')?.addEventListener('click',()=>speak(view.items[view.i][0]));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>removeReview(b.dataset.del));
+  document.querySelectorAll('[data-cmode]').forEach(b=>b.onclick=()=>{chartMode=b.dataset.cmode; monthOff=0; lsSet('dojo.cmode',chartMode); render()});
+  document.querySelectorAll('[data-mon]').forEach(b=>b.onclick=()=>{monthOff=Math.min(0,monthOff+ +b.dataset.mon); render()});
+  $('#stWhat')?.addEventListener('change',e=>{lastWhat=e.target.value; lsSet('dojo.what',lastWhat)});
+  $('#stAdd')?.addEventListener('click',()=>{const m=parseInt($('#stMin').value,10); if(!(m>0)) {$('#stMin').focus(); return} addLog($('#stWhat').value,m); copyMsg=''; render()});
+  $('#swBtn')?.addEventListener('click',()=>{
+    if(sw&&sw.start){ const m=Math.round((Date.now()-sw.start)/60000); sw=null; lsSet('dojo.sw',null); clearInterval(swTick); if(m>=1) addLog($('#stWhat').value,m); render() }
+    else { sw={start:Date.now()}; lsSet('dojo.sw',sw); render(); swRun() }
+  });
+  $('#swCancel')?.addEventListener('click',()=>{sw=null; lsSet('dojo.sw',null); clearInterval(swTick); render()});
+  document.querySelectorAll('[data-dellog]').forEach(b=>b.onclick=()=>{const d=progress.daily[dayKey()]; if(!d) return; d.log=(d.log||[]).filter(x=>x.id!==b.dataset.dellog); saveProgress(); render()});
+  $('#spCopy')?.addEventListener('click',()=>{
+    const text=spSummary();
+    const done=()=>{copyMsg='コピーしました。スタプラの記録に貼ってね'; render()};
+    try{ navigator.clipboard.writeText(text).then(done,()=>{const t=$('#spText'); t.hidden=false; t.value=text; t.select(); copyMsg='選択した文字をコピーしてね'; }) }catch(e){ const t=$('#spText'); t.hidden=false; t.value=text; t.select(); }
+  });
+  if(sw&&sw.start) swRun();
+  const box=$('#importBox'); if(box) box.addEventListener('input',()=>{importText=box.value});
+  $('#importSrc')?.addEventListener('change',e=>{importSrc=e.target.value});
+  $('#importBtn')?.addEventListener('click',doImport);
+}
+
+// ---------- boot ----------
+(function boot(){
+  const lp=lsGet('dojo.progress'); if(lp) progress={...clone(DEFAULT_PROGRESS),...lp, target:600, floor:500};
+  const lr=lsGet('dojo.reviews'); if(Array.isArray(lr)) reviews=lr;
+  render();
+  if(!window.claude?.use) return;
+  window.claude.use('db').then(d=>{
+    if(!d) return;
+    db=d; progRef=db.doc('dojo/progress'); mode='db';
+    let first=true;
+    progRef.onSnapshot(s=>{
+      if(s.exists){
+        if(dirty || s.metadata.hasPendingWrites) return;
+        const next={...clone(DEFAULT_PROGRESS),...s.data()};
+        if(JSON.stringify(next)!==JSON.stringify(progress)){progress=next; if(!view||view.picked!==null||view.kind==='words') render()}
+      } else if(first && lp){ saveProgress() }
+      first=false;
+    },()=>{});
+    db.collection('review').onSnapshot(qs=>{
+      const next=qs.docs.map(x=>({id:x.id,...x.data()}));
+      if(JSON.stringify(next)!==JSON.stringify(reviews)){reviews=next; if(!view||view.picked!==null) render()}
+    },()=>{});
+    render();
+  }).catch(()=>{});
+})();
+</script>
+
+</body></html>
