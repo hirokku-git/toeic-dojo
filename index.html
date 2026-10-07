@@ -856,19 +856,22 @@ function englishVoice(){
   return en.sort((a,b)=>score(b)-score(a))[0];
 }
 function speak(word, rate=.9){
+  const note=m=>{voiceMsg=m; const el=document.getElementById('voiceNote'); if(el) el.textContent=m};
   try{
-    const say=()=>{
-      const v=englishVoice();
-      if(!v){voiceMsg='この端末に英語の声が入ってないみたい。「辞書で発音」で聞いてね'; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg; return}
-      const u=new SpeechSynthesisUtterance(word.normalize('NFD').replace(/[\u0300-\u036f]/g,''));
-      u.voice=v; u.lang=v.lang; u.rate=rate;
-      speechSynthesis.cancel(); speechSynthesis.speak(u);
-      voiceMsg='声：'+v.name; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg;
-    };
-    if(speechSynthesis.getVoices().length) say();
-    else { let done=false; const go=()=>{if(!done){done=true; say()}}; speechSynthesis.addEventListener('voiceschanged',go,{once:true}); setTimeout(go,700) }
-  }catch(e){}
+    if(!('speechSynthesis' in window)){ note('このブラウザは読み上げに対応してないみたい。Chrome か Edge で開いてね'); return }
+    const text=String(word).normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); if(!text) return;
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US'; u.rate=rate;
+    const v=englishVoice(); if(v){u.voice=v; u.lang=v.lang}
+    u.onstart=()=>note(v?'声：'+v.name:'読み上げ中');
+    u.onerror=e=>{ if(e.error!=='interrupted'&&e.error!=='canceled') note('読み上げできなかった（'+e.error+'）。Chrome か Edge で開いてみてね') };
+    if(speechSynthesis.speaking||speechSynthesis.pending) speechSynthesis.cancel();
+    speechSynthesis.resume();
+    speechSynthesis.speak(u); // ユーザー操作の中ですぐ呼ぶ（スマホは後から呼ぶと止められる）
+    setTimeout(()=>{ if(!speechSynthesis.speaking&&!speechSynthesis.pending&&!v) note('英語の声が見つからないみたい。Chrome か Edge で開くと聞けるよ') },1500);
+  }catch(e){ note('読み上げできなかった。Chrome か Edge で開いてみてね') }
 }
+try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged',()=>{}) }catch(e){}
 
 // ---------- events ----------
 function bind(){
