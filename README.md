@@ -22,7 +22,7 @@ and a review notebook for questions I get wrong.
 - **Study time log** – a timer and manual entries per material, with a 7-day bar chart (SVG) and a monthly calendar.
 - **English diary** – one entry per day. A calendar at the top shows which days I wrote (green with a check mark),
   tapping a date opens that day's entry, and all entries are listed newest first. Each entry can hold my own English,
-  Max's corrected version, the grammar points he fixed and useful phrases, and any of them can be read aloud
+  Max's corrected version (with a Japanese translation under each sentence), the grammar points he fixed and useful phrases, and any of them can be read aloud
   (Web Speech API, three speeds).
 - **Gamification** – XP, levels and a daily streak.
 

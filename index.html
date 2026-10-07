@@ -147,6 +147,10 @@ textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:
 .dcal-c:disabled{cursor:default}
 .diary-text{font-family:var(--f-body);font-size:15px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
 .diary-box{font-family:var(--f-body);font-size:15px;min-height:140px}
+
+.pair{margin:0 0 10px}
+.pair .en{font-size:15px;line-height:1.6;margin:0;overflow-wrap:anywhere}
+.pair .ja{font-size:13px;color:var(--muted);margin:2px 0 0}
 .fix{border-left:3px solid var(--accent);padding:2px 0 2px 10px;margin:0 0 8px;font-size:14px}
 .ditem{cursor:pointer;text-align:left;width:100%;background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .ditem:hover{border-color:var(--accent)}
@@ -623,7 +627,7 @@ function diaryEntryCard(){
       <div class="row" style="margin-top:8px">${sayBtn('text','読み上げ')}<button class="btn small" id="diaryEdit">書き直す</button>${diaryMsg?`<span class="msg ok">${esc(diaryMsg)}</span>`:''}</div></div>`}
     ${e.corrected?`<div style="border-top:1px dashed var(--line);margin-top:16px;padding-top:14px">
       <div class="eyebrow" style="margin-bottom:4px">Max の添削（自然な英語）</div>
-      <p class="diary-text">${esc(e.corrected)}</p>
+      ${Array.isArray(e.pairs)&&e.pairs.length?e.pairs.map(x=>`<div class="pair"><p class="en">${esc(x.en)}</p><p class="ja">${esc(x.ja)}</p></div>`).join(''):`<p class="diary-text">${esc(e.corrected)}</p>${e.translation?`<p class="note" style="margin:6px 0 0;white-space:pre-wrap">${esc(e.translation)}</p>`:''}`}
       <div class="row" style="margin-top:8px">${sayBtn('corrected','読み上げ')}<button class="btn small" id="dStop">止める</button></div>
       ${fixes.length?`<div class="eyebrow" style="margin:14px 0 6px">直したポイント</div>${fixes.map(f=>`<p class="fix">${esc(f)}</p>`).join('')}`:''}
       ${phrases.length?`<div class="eyebrow" style="margin:14px 0 6px">使えるフレーズ</div>${phrases.map((f,i)=>`<p class="fix" style="border-color:var(--gold)">${esc(f)} <button class="btn small" data-dsay="p${i}" style="margin-left:4px" aria-label="読み上げ">🔊</button></p>`).join('')}`:''}
