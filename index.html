@@ -857,18 +857,26 @@ function englishVoice(){
 }
 function speak(word, rate=.9){
   const note=m=>{voiceMsg=m; const el=document.getElementById('voiceNote'); if(el) el.textContent=m};
+  const NO_EN='ここには英語の声が入ってないみたい（日本語の声で読んじゃうので止めた）。道場のリンクを Chrome か Edge で開くと英語で聞けるよ';
   try{
     if(!('speechSynthesis' in window)){ note('このブラウザは読み上げに対応してないみたい。Chrome か Edge で開いてね'); return }
     const text=String(word).normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); if(!text) return;
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US'; u.rate=rate;
-    const v=englishVoice(); if(v){u.voice=v; u.lang=v.lang}
-    u.onstart=()=>note(v?'声：'+v.name:'読み上げ中');
-    u.onerror=e=>{ if(e.error!=='interrupted'&&e.error!=='canceled') note('読み上げできなかった（'+e.error+'）。Chrome か Edge で開いてみてね') };
-    if(speechSynthesis.speaking||speechSynthesis.pending) speechSynthesis.cancel();
-    speechSynthesis.resume();
-    speechSynthesis.speak(u); // ユーザー操作の中ですぐ呼ぶ（スマホは後から呼ぶと止められる）
-    setTimeout(()=>{ if(!speechSynthesis.speaking&&!speechSynthesis.pending&&!v) note('英語の声が見つからないみたい。Chrome か Edge で開くと聞けるよ') },1500);
+    const go=v=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.voice=v; u.lang=v.lang; u.rate=rate;
+      u.onstart=()=>note('声：'+v.name);
+      u.onerror=e=>{ if(e.error!=='interrupted'&&e.error!=='canceled') note('読み上げできなかった（'+e.error+'）。Chrome か Edge で開いてみてね') };
+      if(speechSynthesis.speaking||speechSynthesis.pending) speechSynthesis.cancel();
+      speechSynthesis.resume();
+      speechSynthesis.speak(u);
+    };
+    const v=englishVoice();
+    if(v){ go(v); return } // タップの中ですぐ読む（スマホは後から呼ぶと止められる）
+    if(speechSynthesis.getVoices().length){ note(NO_EN); return }
+    // 声の一覧がまだ読み込み中：少し待ってから英語の声を探す
+    note('声を読み込み中…');
+    let done=false; const retry=()=>{ if(done) return; done=true; const w=englishVoice(); if(w) go(w); else note(NO_EN) };
+    speechSynthesis.addEventListener('voiceschanged',retry,{once:true}); setTimeout(retry,1200);
   }catch(e){ note('読み上げできなかった。Chrome か Edge で開いてみてね') }
 }
 try{ speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged',()=>{}) }catch(e){}
