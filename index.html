@@ -133,6 +133,24 @@ textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:
 .msum div{display:flex;flex-direction:column}
 .msum b{font-family:var(--f-mono);font-size:16px}
 .syncnote{font-size:12px;color:var(--muted);text-align:center}
+.tabs.five{grid-template-columns:repeat(5,1fr)}
+@media (max-width:420px){.tabs button{font-size:13px;padding:9px 2px}}
+.dcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dcal-c{border:1px solid var(--line);border-radius:8px;min-height:46px;padding:4px 6px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;background:var(--bg);text-align:left}
+.dcal-c.empty{border:0;background:transparent}
+.dcal-c.has{background:var(--good-soft);border-color:var(--good)}
+.dcal-c.miss{opacity:.55}
+.dcal-c.today{outline:2px solid var(--gold);outline-offset:-1px}
+.dcal-c.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.dcal-c .d{font-size:11px}
+.dcal-c .k{align-self:flex-end;font-size:12px;font-weight:700;color:var(--good);line-height:1}
+.dcal-c:disabled{cursor:default}
+.diary-text{font-family:var(--f-body);font-size:15px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.diary-box{font-family:var(--f-body);font-size:15px;min-height:140px}
+.fix{border-left:3px solid var(--accent);padding:2px 0 2px 10px;margin:0 0 8px;font-size:14px}
+.ditem{cursor:pointer;text-align:left;width:100%;background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.ditem:hover{border-color:var(--accent)}
+.ditem .p{font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
 @media (prefers-reduced-motion:reduce){.timer div{transition:none}}
 </style>
 
@@ -263,6 +281,8 @@ let importMsg = null;
 let importSrc = '出る1000';
 let db = null, progRef = null, mode = 'local';
 let timerId = null;
+let diary = []; // {id:'YYYY-MM-DD', text, corrected, fixes:[], phrases:[], updatedAt}
+let diarySel = null, diaryMonOff = 0, diaryDraft = {}, diaryMsg = '', diaryRate = lsGet('dojo.drate') || 0.9;
 
 function clone(o){return JSON.parse(JSON.stringify(o))}
 function esc(s){return String(s ?? '').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
@@ -340,8 +360,8 @@ function render(){
     <div class="countdown">本番まで あと<b>${days}</b>日</div>
   </header>
   ${scoreCard()}
-  <nav class="tabs" role="tablist">
-    ${[['today','今日'],['part5','Part 5'],['words','単語'],['review','復習']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${l}${k==='review'&&active.length?`<span class="badge">${active.length}</span>`:''}</button>`).join('')}
+  <nav class="tabs five" role="tablist">
+    ${[['today','今日'],['part5','Part 5'],['words','単語'],['review','復習'],['diary','日記']].map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-tab="${k}">${l}${k==='review'&&active.length?`<span class="badge">${active.length}</span>`:''}</button>`).join('')}
   </nav>
   <section>${view ? sessionView() : tabView()}</section>
   <p class="syncnote">${mode==='db' ? '記録はクラウドに保存中。Max から復習ノートに問題を送れます。' : 'この端末のブラウザに保存中。'}</p>`;
@@ -373,6 +393,7 @@ function tabView(){
   if(tab==='today') return todayView();
   if(tab==='part5') return part5View();
   if(tab==='words') return wordsView();
+  if(tab==='diary') return diaryView();
   return reviewView();
 }
 
@@ -392,6 +413,7 @@ function todayView(){
     <div class="menu-item"><div><h3>Part 5 を5問（今日の目標 ${DAILY_GOAL}問、${left?'あと '+left+' 問':'達成！'}）</h3><p>1問30秒以内で解く練習。本番は Part 5 を10分で終わらせたい。</p></div><button class="btn solid" data-start="quiz">はじめる</button></div>
     <div class="menu-item"><div><h3>新しい単語を10個</h3><p>声に出して3周。書かなくていい。</p></div>${t.w>=10?'<span class="done">今日はOK</span>':''}<button class="btn solid" data-start="words">はじめる</button></div>
     <div class="menu-item"><div><h3>復習ノート（${active}問）</h3><p>2回連続で正解したら卒業。出る1000の間違いもここに入る。</p></div><button class="btn solid" data-start="review" ${active?'':'disabled'}>はじめる</button></div>
+    <div class="menu-item"><div><h3>英語日記</h3><p>2〜3文でOK。書いたら Max が添削するよ。</p></div>${diaryById(dayKey())?'<span class="done">今日は書いた</span>':''}<button class="btn solid" data-godiary>${diaryById(dayKey())?'見る':'書く'}</button></div>
   </div>
   ${studyCard()}
   </div>`;
@@ -545,6 +567,85 @@ function reviewView(){
   </div>
   ${grad.length?`<div class="card"><h2>卒業した問題</h2><ul class="list">${grad.map(r=>`<li><div>${esc(r.sentence)}</div><div class="meta">(${L[r.answer]}) ${esc(r.choices[r.answer])}${r.cat?' ・ '+esc(r.cat):''} <button class="btn small" data-del="${esc(r.id)}" style="margin-left:6px">消す</button></div></li>`).join('')}</ul></div>`:''}
   </div>`;
+}
+
+// ---------- diary ----------
+function diaryById(k){return diary.find(x=>x.id===k)}
+function diaryStreak(){
+  const has=new Set(diary.filter(x=>x.text).map(x=>x.id));
+  const d=new Date(); if(!has.has(dayKey(d))) d.setDate(d.getDate()-1);
+  let n=0; while(has.has(dayKey(d))){n++; d.setDate(d.getDate()-1)}
+  return n;
+}
+function fmtDate(k){const [y,m,d]=k.split('-').map(Number); const w='日月火水木金土'[new Date(y,m-1,d).getDay()]; return `${m}月${d}日（${w}）`}
+async function putDiary(e){
+  const i=diary.findIndex(x=>x.id===e.id); if(i>=0) diary[i]={...diary[i],...e}; else diary.push(e);
+  if(mode==='db'){ const {id,...body}=diaryById(e.id); await db.doc('diary/'+id).set(body).catch(()=>{}); }
+  else lsSet('dojo.diary',diary);
+}
+async function removeDiary(id){
+  diary=diary.filter(x=>x.id!==id);
+  if(mode==='db') await db.doc('diary/'+id).delete().catch(()=>{});
+  else lsSet('dojo.diary',diary);
+}
+function diaryCal(){
+  const base=new Date(); base.setDate(1); base.setMonth(base.getMonth()+diaryMonOff);
+  const y=base.getFullYear(), mo=base.getMonth(), nd=new Date(y,mo+1,0).getDate(), lead=new Date(y,mo,1).getDay();
+  const tk=dayKey(); let wrote=0;
+  const cells=[];
+  for(let i=0;i<lead;i++) cells.push('<div class="dcal-c empty"></div>');
+  for(let d=1;d<=nd;d++){
+    const k=dayKey(new Date(y,mo,d)), e=diaryById(k), has=!!(e&&e.text), future=k>tk;
+    if(has) wrote++;
+    const cls=[has?'has':(k<tk?'miss':''), k===tk?'today':'', k===diarySel?'sel':''].join(' ');
+    cells.push(`<button class="dcal-c ${cls}" data-dday="${k}" ${future?'disabled':''} aria-label="${fmtDate(k)}${has?' 日記あり':''}"><span class="d">${d}</span><span class="k">${has?'✓':''}</span></button>`);
+  }
+  const isNow=diaryMonOff===0;
+  const days=isNow?new Date().getDate():nd;
+  return `<div class="spread" style="margin-bottom:8px"><button class="btn small" data-dmon="-1">‹ 前の月</button><b>${y}年${mo+1}月</b><button class="btn small" data-dmon="1" ${isNow?'disabled':''}>次の月 ›</button></div>
+  <div class="dcal">${'日月火水木金土'.split('').map(w=>`<div class="cal-h">${w}</div>`).join('')}${cells.join('')}</div>
+  <div class="msum"><div><span class="note">今月書いた日</span><b>${wrote} / ${days}日</b></div><div><span class="note">連続</span><b>${diaryStreak()}日</b></div><div><span class="note">ぜんぶで</span><b>${diary.filter(x=>x.text).length}本</b></div></div>`;
+}
+function sayBtn(kind,label){return `<button class="btn small" data-dsay="${kind}">🔊 ${label}</button>`}
+function diaryEntryCard(){
+  const k=diarySel, e=diaryById(k)||{}, isToday=k===dayKey();
+  const draft=diaryDraft[k] ?? e.text ?? '';
+  const editing=!e.text || diaryDraft[k]!==undefined;
+  const fixes=Array.isArray(e.fixes)?e.fixes:[], phrases=Array.isArray(e.phrases)?e.phrases:[];
+  return `<div class="card">
+    <div class="spread"><h2 style="margin:0">${fmtDate(k)}${isToday?' ・ 今日':''}</h2>
+      <div class="row"><span class="note">速さ</span><div class="seg">${[[0.7,'ゆっくり'],[0.9,'ふつう'],[1.05,'はやめ']].map(([r,l])=>`<button data-drate="${r}" aria-selected="${diaryRate===r}">${l}</button>`).join('')}</div></div></div>
+    ${editing?`
+      <textarea id="diaryBox" class="diary-box" placeholder="${isToday?'今日あったことを英語で。2〜3文でOK。わからない単語は日本語まじりでもいいよ':'この日の日記を英語で'}" style="margin-top:12px">${esc(draft)}</textarea>
+      <div class="row" style="margin-top:10px"><button class="btn solid" id="diarySave">保存</button>${e.text?'<button class="btn" id="diaryCancel">やめる</button>':''}${diaryMsg?`<span class="msg ok">${esc(diaryMsg)}</span>`:''}</div>`
+    :`
+      <div style="margin-top:12px"><div class="eyebrow" style="margin-bottom:4px">自分で書いた英語</div><p class="diary-text">${esc(e.text)}</p>
+      <div class="row" style="margin-top:8px">${sayBtn('text','読み上げ')}<button class="btn small" id="diaryEdit">書き直す</button>${diaryMsg?`<span class="msg ok">${esc(diaryMsg)}</span>`:''}</div></div>`}
+    ${e.corrected?`<div style="border-top:1px dashed var(--line);margin-top:16px;padding-top:14px">
+      <div class="eyebrow" style="margin-bottom:4px">Max の添削（自然な英語）</div>
+      <p class="diary-text">${esc(e.corrected)}</p>
+      <div class="row" style="margin-top:8px">${sayBtn('corrected','読み上げ')}<button class="btn small" id="dStop">止める</button></div>
+      ${fixes.length?`<div class="eyebrow" style="margin:14px 0 6px">直したポイント</div>${fixes.map(f=>`<p class="fix">${esc(f)}</p>`).join('')}`:''}
+      ${phrases.length?`<div class="eyebrow" style="margin:14px 0 6px">使えるフレーズ</div>${phrases.map((f,i)=>`<p class="fix" style="border-color:var(--gold)">${esc(f)} <button class="btn small" data-dsay="p${i}" style="margin-left:4px" aria-label="読み上げ">🔊</button></p>`).join('')}`:''}
+    </div>`:(e.text&&!editing?`<p class="note" style="margin:14px 0 0">このチャットで Max に「日記添削して」って言えば、ここに添削が入るよ。</p>`:'')}
+    <p class="note" id="voiceNote" style="margin:8px 0 0">${voiceMsg}</p>
+  </div>`;
+}
+function diaryView(){
+  if(!diarySel) diarySel=dayKey();
+  const list=diary.filter(x=>x.text).sort((a,b)=>b.id.localeCompare(a.id));
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="card">${diaryCal()}</div>
+  ${diaryEntryCard()}
+  <div class="card"><h2>これまでの日記（新しい順）</h2>${list.length?`<ul class="list">${list.map(e=>`<li style="padding:0;border:0"><button class="ditem" data-dday="${e.id}"><span class="spread"><b style="font-size:13px">${fmtDate(e.id)}</b>${e.corrected?'<span class="tag">添削ずみ</span>':''}</span><span class="p">${esc(e.corrected||e.text)}</span></button></li>`).join('')}</ul>`:'<p class="note">まだ1本もないよ。今日の1本目を書いてみよう。</p>'}</div>
+  </div>`;
+}
+function diarySpeak(kind){
+  const e=diaryById(diarySel); if(!e) return;
+  let t=kind==='text'?e.text:kind==='corrected'?e.corrected:(e.phrases||[])[+kind.slice(1)];
+  if(!t) return;
+  t=String(t).replace(/[（(][^）)]*[぀-ヿ一-鿿][^）)]*[）)]/g,'').replace(/[぀-ヿ一-鿿]+/g,' ');
+  speak(t, diaryRate);
 }
 
 // ---------- sessions ----------
@@ -750,13 +851,13 @@ function englishVoice(){
     return s};
   return en.sort((a,b)=>score(b)-score(a))[0];
 }
-function speak(word){
+function speak(word, rate=.9){
   try{
     const say=()=>{
       const v=englishVoice();
       if(!v){voiceMsg='この端末に英語の声が入ってないみたい。「辞書で発音」で聞いてね'; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg; return}
       const u=new SpeechSynthesisUtterance(word.normalize('NFD').replace(/[\u0300-\u036f]/g,''));
-      u.voice=v; u.lang=v.lang; u.rate=.9;
+      u.voice=v; u.lang=v.lang; u.rate=rate;
       speechSynthesis.cancel(); speechSynthesis.speak(u);
       voiceMsg='声：'+v.name; const el=document.getElementById('voiceNote'); if(el) el.textContent=voiceMsg;
     };
@@ -801,12 +902,32 @@ function bind(){
   const box=$('#importBox'); if(box) box.addEventListener('input',()=>{importText=box.value});
   $('#importSrc')?.addEventListener('change',e=>{importSrc=e.target.value});
   $('#importBtn')?.addEventListener('click',doImport);
+  document.querySelectorAll('[data-godiary]').forEach(b=>b.onclick=()=>{tab='diary'; diarySel=dayKey(); diaryMonOff=0; render()});
+  document.querySelectorAll('[data-dday]').forEach(b=>b.onclick=()=>{diarySel=b.dataset.dday; diaryMsg=''; const n=new Date(), [y,m]=diarySel.split('-').map(Number); diaryMonOff=(y-n.getFullYear())*12+(m-1-n.getMonth()); render(); if(b.classList.contains('ditem')) window.scrollTo({top:0,behavior:'smooth'})});
+  document.querySelectorAll('[data-dmon]').forEach(b=>b.onclick=()=>{diaryMonOff=Math.min(0,diaryMonOff+ +b.dataset.dmon); render()});
+  document.querySelectorAll('[data-drate]').forEach(b=>b.onclick=()=>{diaryRate=+b.dataset.drate; lsSet('dojo.drate',diaryRate); render()});
+  document.querySelectorAll('[data-dsay]').forEach(b=>b.onclick=()=>diarySpeak(b.dataset.dsay));
+  $('#dStop')?.addEventListener('click',()=>{try{speechSynthesis.cancel()}catch(e){}});
+  const dbox=$('#diaryBox'); if(dbox) dbox.addEventListener('input',()=>{diaryDraft[diarySel]=dbox.value});
+  $('#diaryEdit')?.addEventListener('click',()=>{const e=diaryById(diarySel); diaryDraft[diarySel]=e?e.text:''; diaryMsg=''; render(); $('#diaryBox')?.focus()});
+  $('#diaryCancel')?.addEventListener('click',()=>{delete diaryDraft[diarySel]; diaryMsg=''; render()});
+  $('#diarySave')?.addEventListener('click',async()=>{
+    const k=diarySel, t=($('#diaryBox').value||'').trim();
+    if(!t){ if(diaryById(k)){await removeDiary(k)} delete diaryDraft[k]; diaryMsg=''; render(); return }
+    const first=!(diaryById(k)||{}).text;
+    await putDiary({id:k, text:t, updatedAt:new Date().toISOString()});
+    delete diaryDraft[k];
+    if(first && k===dayKey()){ touchDay(); addXp(15); saveProgress() }
+    diaryMsg=first?'保存した！Max に「日記添削して」って送ってね':'書き直しを保存した';
+    render();
+  });
 }
 
 // ---------- boot ----------
 (function boot(){
   const lp=lsGet('dojo.progress'); if(lp) progress={...clone(DEFAULT_PROGRESS),...lp, target:600, floor:500};
   const lr=lsGet('dojo.reviews'); if(Array.isArray(lr)) reviews=lr;
+  const ld=lsGet('dojo.diary'); if(Array.isArray(ld)) diary=ld;
   render();
   if(!window.claude?.use) return;
   window.claude.use('db').then(d=>{
@@ -817,9 +938,13 @@ function bind(){
       if(s.exists){
         if(dirty || s.metadata.hasPendingWrites) return;
         const next={...clone(DEFAULT_PROGRESS),...s.data()};
-        if(JSON.stringify(next)!==JSON.stringify(progress)){progress=next; if(!view||view.picked!==null||view.kind==='words') render()}
+        if(JSON.stringify(next)!==JSON.stringify(progress)){progress=next; if((!view||view.picked!==null||view.kind==='words') && document.activeElement?.id!=='diaryBox') render()}
       } else if(first && lp){ saveProgress() }
       first=false;
+    },()=>{});
+    db.collection('diary').onSnapshot(qs=>{
+      const next=qs.docs.map(x=>({...x.data(),id:x.id}));
+      if(JSON.stringify(next)!==JSON.stringify(diary)){diary=next; if(!view && document.activeElement?.id!=='diaryBox') render()}
     },()=>{});
     db.collection('review').onSnapshot(qs=>{
       const next=qs.docs.map(x=>({id:x.id,...x.data()}));

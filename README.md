@@ -20,6 +20,10 @@ and a review notebook for questions I get wrong.
 - **Review notebook** – a question "graduates" after I answer it correctly twice in a row.
   I can paste a list of mistakes from my textbook (出る1000) in a fixed format and import them.
 - **Study time log** – a timer and manual entries per material, with a 7-day bar chart (SVG) and a monthly calendar.
+- **English diary** – one entry per day. A calendar at the top shows which days I wrote (green with a check mark),
+  tapping a date opens that day's entry, and all entries are listed newest first. Each entry can hold my own English,
+  Max's corrected version, the grammar points he fixed and useful phrases, and any of them can be read aloud
+  (Web Speech API, three speeds).
 - **Gamification** – XP, levels and a daily streak.
 
 ## How it works
@@ -31,11 +35,14 @@ Everything is in one file, `index.html` (HTML + CSS + plain JavaScript, no frame
 - **State:** two pieces of data:
   - `progress` – score, XP, streak, per-day study records, word status, per-question stats.
   - `reviews` – the questions in the review notebook.
+  - `diary` – one entry per day, keyed by date (`YYYY-MM-DD`).
 - **Saving data:** the app has two modes.
   - *Local mode:* data is saved in the browser with `localStorage`. This works anywhere, including when you open `index.html` directly.
   - *Cloud mode:* when the page runs as a Claude artifact on claude.ai, it calls `window.claude.use('db')`
-    and stores `progress` in the document `dojo/progress` and each review question in the collection `review`.
-    Because the data lives there, my AI tutor (Claude) can add questions to my review notebook directly.
+    and stores `progress` in the document `dojo/progress`, each review question in the collection `review`,
+    and each diary entry in the collection `diary`.
+    Because the data lives there, my AI tutor (Claude) can add questions to my review notebook
+    and write corrections into my diary directly.
 
 ### Parts that only work inside Claude
 
